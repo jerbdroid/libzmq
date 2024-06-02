@@ -786,7 +786,9 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   add_definitions(-D_DARWIN_C_SOURCE)
 endif()
 
-find_package(AsciiDoctor)
+if(WITH_DOCS)
+  find_package(AsciiDoctor)
+endif()
 
 cmake_dependent_option(WITH_DOC "Build Reference Guide documentation(requires DocBook)" ON "ASCIIDOC_FOUND;NOT WIN32"
                        OFF) # Do not build docs on Windows due to issues with symlinks
@@ -1272,7 +1274,7 @@ if(MSVC)
     DEPENDS ${nsis-template})
 endif()
 
-option(WITH_DOCS "Build html docs" ON)
+option(WITH_DOCS "Build html docs" OFF)
 if(WITH_DOCS)
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc)
   file(
@@ -1314,7 +1316,7 @@ endif()
 
 # -----------------------------------------------------------------------------
 # output
-option(BUILD_SHARED "Whether or not to build the shared object" ON)
+option(BUILD_SHARED "Whether or not to build the shared object" OFF)
 option(BUILD_STATIC "Whether or not to build the static archive" ON)
 
 if(MSVC)
@@ -1371,7 +1373,9 @@ if(MSVC)
     endif()
   endif()
 
+  message("Should do static")
   if(BUILD_STATIC)
+    message("OK")
     add_library(libzmq-static STATIC ${sources} ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
     set_target_properties(
       libzmq-static
@@ -1384,6 +1388,7 @@ if(MSVC)
                  DEBUG_POSTFIX "${MSVC_TOOLSET}-mt-sgd-${ZMQ_VERSION_MAJOR}_${ZMQ_VERSION_MINOR}_${ZMQ_VERSION_PATCH}"
                  COMPILE_FLAGS "/DZMQ_STATIC"
                  OUTPUT_NAME "lib${ZMQ_OUTPUT_BASENAME}")
+    message("no issues")
   endif()
 else()
   # avoid building everything twice for shared + static only on *nix, as Windows needs different preprocessor defines in

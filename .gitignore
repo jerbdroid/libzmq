@@ -127,3 +127,9 @@ zeromq-*.zip
 core
 
 mybuild
+
+**/bazel-out
+**/bazel-bin
+**/bazel-libzmq
+
+MODULE.bazel.lock 
