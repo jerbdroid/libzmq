@@ -492,7 +492,7 @@ execute_process(
 if(CACHELINE_SIZE STREQUAL ""
    OR CACHELINE_SIZE EQUAL 0
    OR CACHELINE_SIZE EQUAL -1
-   OR CACHELINE_SIZE EQUAL "undefined")
+   OR CACHELINE_SIZE STREQUAL "undefined")
   set(ZMQ_CACHELINE_SIZE 64)
 else()
   set(ZMQ_CACHELINE_SIZE ${CACHELINE_SIZE})
@@ -567,12 +567,18 @@ if(ZMQ_HAVE_WINDOWS)
   # Cannot use check_library_exists because the symbol is always declared as char(*)(void)
   set(CMAKE_REQUIRED_LIBRARIES "ws2_32.lib")
   check_cxx_symbol_exists(WSAStartup "winsock2.h" HAVE_WS2_32)
+  if(HAVE_WS2_32)
+    set(pkg_config_libs_private "${pkg_config_libs_private} -lws2_32")
+  endif()
 
   set(CMAKE_REQUIRED_LIBRARIES "rpcrt4.lib")
   check_cxx_symbol_exists(UuidCreateSequential "rpc.h" HAVE_RPCRT4)
 
   set(CMAKE_REQUIRED_LIBRARIES "iphlpapi.lib")
   check_cxx_symbol_exists(GetAdaptersAddresses "winsock2.h;iphlpapi.h" HAVE_IPHLAPI)
+  if(HAVE_IPHLAPI)
+    set(pkg_config_libs_private "${pkg_config_libs_private} -liphlpapi")
+  endif()
   check_cxx_symbol_exists(if_nametoindex "iphlpapi.h" HAVE_IF_NAMETOINDEX)
 
   set(CMAKE_REQUIRED_LIBRARIES "")
@@ -1252,9 +1258,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/builds/cmake/platform.hpp.in ${CMAKE_
 list(APPEND sources ${CMAKE_CURRENT_BINARY_DIR}/platform.hpp)
 
 set(prefix ${CMAKE_INSTALL_PREFIX})
-set(exec_prefix ${prefix})
-set(libdir ${prefix}/${CMAKE_INSTALL_LIBDIR})
-set(includedir ${prefix}/${CMAKE_INSTALL_INCLUDEDIR})
+set(exec_prefix "\${prefix}")
+set(libdir "\${prefix}/${CMAKE_INSTALL_LIBDIR}")
+set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
 set(VERSION ${ZMQ_VERSION_MAJOR}.${ZMQ_VERSION_MINOR}.${ZMQ_VERSION_PATCH})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/libzmq.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libzmq.pc @ONLY)
 set(zmq-pkgconfig ${CMAKE_CURRENT_BINARY_DIR}/libzmq.pc)
